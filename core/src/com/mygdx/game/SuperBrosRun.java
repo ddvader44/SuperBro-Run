@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,14 +15,14 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class SuperBrosRun extends ApplicationAdapter {
-	SpriteBatch batch;
+    SpriteBatch batch;
     Texture background;
     Texture[] man;
     Texture dizzy;
     int manState=0;
-	int pause=0;
-	float gravity =0.2f;
-	float velocity =0;
+    int pause=0;
+    float gravity =0.2f;
+    float velocity =0;
     int manY=0;
     Rectangle manRectangle;
     Random random;
@@ -38,9 +39,12 @@ public class SuperBrosRun extends ApplicationAdapter {
     ArrayList<Integer> bombYs = new ArrayList<Integer>();
     Texture bomb;
     int bombCount;
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
+    private Music bgmusic;
+    private Music coinsound;
+    private Music bombsound;
+    @Override
+    public void create () {
+        batch = new SpriteBatch();
         background = new Texture("bg.png");
         man = new Texture[4];
         man[0] = new Texture("frame-1.png");
@@ -55,22 +59,27 @@ public class SuperBrosRun extends ApplicationAdapter {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(10);
-	}
-public void makeCoin()
-{
-    float height = random.nextFloat()*Gdx.graphics.getHeight();
-    coinYs.add((int)height);
-    coinXs.add(Gdx.graphics.getWidth());
-}
+        bgmusic = Gdx.audio.newMusic(Gdx.files.internal("bgmusic.mp3"));
+       coinsound= Gdx.audio.newMusic(Gdx.files.internal("coin.mp3"));
+        bombsound = Gdx.audio.newMusic(Gdx.files.internal("bomb.mp3"));
+       bgmusic.setLooping(true);
+        bgmusic.play();
+    }
+    public void makeCoin()
+    {
+        float height = random.nextFloat()*Gdx.graphics.getHeight();
+        coinYs.add((int)height);
+        coinXs.add(Gdx.graphics.getWidth());
+    }
     public void makeBomb()
     {
         float height = random.nextFloat()*Gdx.graphics.getHeight();
         bombYs.add((int)height);
-       bombXs.add(Gdx.graphics.getWidth());
+        bombXs.add(Gdx.graphics.getWidth());
     }
 
-	@Override
-	public void render () {
+    @Override
+    public void render () {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         if(gameState==1)
@@ -130,7 +139,7 @@ public void makeCoin()
             }
         } else if (gameState==0)
         {
-           //WAITING TO START
+            //WAITING TO START
             if(Gdx.input.justTouched())
             {
                 gameState=1;
@@ -155,17 +164,18 @@ public void makeCoin()
                 bombCount=0;
             }
         }
-if(gameState==2)
-{
-    batch.draw(dizzy,Gdx.graphics.getWidth() / 2 - man[manState].getWidth() / 2, manY);
-}else {
-    batch.draw(man[manState], Gdx.graphics.getWidth() / 2 - man[manState].getWidth() / 2, manY);
-}
+        if(gameState==2)
+        {
+            batch.draw(dizzy,Gdx.graphics.getWidth() / 2 - man[manState].getWidth() / 2, manY);
+        }else {
+            batch.draw(man[manState], Gdx.graphics.getWidth() / 2 - man[manState].getWidth() / 2, manY);
+        }
         manRectangle = new Rectangle(Gdx.graphics.getWidth() / 2 - man[manState].getWidth() / 2,manY,man[manState].getWidth(),man[manState].getHeight());
         for(int i=0;i<coinRectangle.size();i++)
         {
             if(Intersector.overlaps(manRectangle,coinRectangle.get(i)))
             {
+                coinsound.play();
                 score++;
                 coinRectangle.remove(i);
                 coinXs.remove(i);
@@ -177,6 +187,7 @@ if(gameState==2)
         {
             if(Intersector.overlaps(manRectangle,bombRectangle.get(i)))
             {
+                bombsound.play();
                 gameState=2;
             }
         }
@@ -184,9 +195,9 @@ if(gameState==2)
         batch.end();
 
     }
-	@Override
-	public void dispose () {
-		batch.dispose();
+    @Override
+    public void dispose () {
+        batch.dispose();
 
-	}
+    }
 }
